@@ -1,6 +1,6 @@
 <div align="center">
 
-# 📧 Gmail AI Manager
+# 📧 GM-AI-L Manager
 
 ### AI-Powered Email Management Desktop Application
 
@@ -28,6 +28,51 @@ Gmail AI Manager is a cross-platform desktop application that revolutionizes ema
 | Backend | Frontend | Database | AI/ML |
 |---------|----------|----------|-------|
 | Node.js | EJS, JavaScript, CSS | JSON | HuggingFace Transformers |
+
+</div>
+
+---
+
+## 🖼️ UI Preview
+
+<div align="center">
+
+### 🏠 Home / Setup Page
+<img src="https://github.com/GirishPawar1999/GM-AI-L-manager/blob/main/Screenshorts/Home.png" width="700" alt="Home Page"/>
+
+---
+
+### 📊 Dashboard Page
+<img src="https://github.com/GirishPawar1999/GM-AI-L-manager/blob/main/Screenshorts/Dashboard-1.png" width="700" alt="Dashboard"/>
+
+---
+
+### 💬 Bulk Summary and Individual Summarization View
+<img src="https://github.com/GirishPawar1999/GM-AI-L-manager/blob/main/Screenshorts/Bulk-summary.png" width="700" alt="Bulk Summary"/>
+
+<img src="https://github.com/GirishPawar1999/GM-AI-L-manager/blob/main/Screenshorts/AI-Individual-email-summary.png" width="700" alt="Indivisual Summary"/>
+
+---
+
+### 💬Smart Reply View
+<img src="https://github.com/GirishPawar1999/GM-AI-L-manager/blob/main/Screenshorts/Smart-Reply.png" width="700" alt="Smart Reply"/>
+
+---
+
+### 💬AI Settings and AI Label View
+<img src="https://github.com/GirishPawar1999/GM-AI-L-manager/blob/main/Screenshorts/AI-Settings.png" width="700" alt="AI_settings"/>
+
+<img src="https://github.com/GirishPawar1999/GM-AI-L-manager/blob/main/Screenshorts/AI-Label.png" width="700" alt="AI Label"/>
+
+---
+
+### 💬Compose Mail View
+<img src="https://github.com/GirishPawar1999/GM-AI-L-manager/blob/main/Screenshorts/Compose-Mail.png" width="700" alt="Smart Reply"/>
+
+---
+
+### 👨‍💻 Developer Page
+<img src="https://github.com/GirishPawar1999/GM-AI-L-manager/blob/main/Screenshorts/Dev.png" width="700" alt="Developer Page"/>
 
 </div>
 
