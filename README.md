@@ -16,10 +16,6 @@
 </div>
 
 ---
-## 🎬 Demo Video (Local File)
-
-<video src="https://github.com/GirishPawar1999/GM-AI-L-manager/blob/main/Screenshorts/Demo.mp4" width="600" controls></video>
----
 
 ## 🌟 Overview
 
