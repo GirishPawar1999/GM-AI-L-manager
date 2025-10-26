@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Gmail Clone – Enhanced</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <style>
+        /* Responsive sidebar improvements */
+        .sidebar {
+            transition: all 0.3s ease;
+            overflow-y: auto;
+            max-height: calc(100vh - 60px);
+        }
+
+        .sidebar.collapsed {
+            width: 60px;
+        }
+
+        .sidebar.collapsed .nav-item span:not(.icon),
+        .sidebar.collapsed .nav-item .count,
+        .sidebar.collapsed .nav-section,
+        .sidebar.collapsed .add-label-btn,
+        .sidebar.collapsed .labels-area {
+            display: none !important;
+        }
+
+        .sidebar.collapsed .nav-item {
+            justify-content: center;
+            padding: 12px;
+            margin: 2px 8px;
+            border-radius: 12px;
+        }
+
+        .sidebar.collapsed .nav-item .icon {
+            margin-right: 0;
+        }
+
+        .sidebar.collapsed .compose-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 8px auto;
+        }
+
+        /* Smart reply styles */
+        .smart-reply-box {
+            background: #e8f5e9;
+            border: 1px solid #34a853;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .smart-reply-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .smart-reply-text {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #202124;
+            padding: 8px;
+            background: white;
+            border-radius: 4px;
+        }
+
+        /* Forward modal */
+        .forward-info {
+            background: #f1f3f4;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #5f6368;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .close-btn:hover {
+            background: #f1f3f4;
+        }
+
+        .modal-title {
+            margin: 0;
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="logo-section">
+            <button class="menu-btn" id="menuToggle">☰</button>
+            <div class="logo">
+                <img src="images/logo.png" alt="Gmail Logo" style="width: 128px; height: 64px; object-fit: contain;">
+            </div>
+        </div>
+
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input id="searchInput" type="text" placeholder="Search mail" />
+        </div>
+
+        <div class="header-icons">
+            <button class="icon-btn" title="Help">❓</button>
+            <button class="icon-btn" title="Settings">⚙️</button>
+            <button class="icon-btn" title="Add AI Label" onclick="openAILabelModal()" id="addAILabelBtn">🤖+</button>
+            <div class="profile-icon" onclick="toggleProfileMenu()">AI</div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div id="summary" class="detail-summary">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <h3 style="margin:0;font-size:16px;">📋 Email Summaries</h3>
+                <div>
+                    <button class="btn btn-secondary" onclick="toggleSummarySize()" id="toggleSizeBtn">➖</button>
+                </div>
+            </div>
+
+            <div class="tab-header">
+                <button id="tab-list" class="tab-btn active" onclick="showTab('list')">List</button>
+                <button id="tab-bulk" class="tab-btn" onclick="showTab('bulk')">Bulk</button>
+            </div>
+
+            <div id="summary-list" class="tab-content"></div>
+            <div id="summary-bulk" class="tab-content" style="display:none; white-space: pre-wrap;"></div>
+        </div>
+
+        <div class="sidebar" id="sidebar">
+            <button class="compose-btn" id="composeOpenBtn">✏️ Compose</button>
+
+            <div id="static-nav">
+                <div class="nav-item active" data-view="inbox" onclick="changeView('inbox')">
+                    <span class="icon">📥</span><span>Inbox</span><span class="count" id="inbox-count">0</span>
+                </div>
+                <div class="nav-item" data-view="starred" onclick="changeView('starred')">
+                    <span class="icon">⭐</span><span>Starred</span>
+                </div>
+                <div class="nav-item" data-view="sent" onclick="changeView('sent')">
+                    <span class="icon">📤</span><span>Sent</span>
+                </div>
+                <div class="nav-item" data-view="drafts" onclick="changeView('drafts')">
+                    <span class="icon">📝</span><span>Drafts</span><span class="count" id="draft-count">0</span>
+                </div>
+                <div class="nav-item" data-view="trash" onclick="changeView('trash')">
+                    <span class="icon">🗑️</span><span>Trash</span>
+                </div>
+            </div>
+
+            <div class="nav-section" id="aiLabelsSection">
+                <span>AI Labels</span>
+                <button class="add-label-btn" onclick="openAILabelModal()">+</button>
+            </div>
+
+            <div class="labels-area" id="ai-labels-list"></div>
+
+            <div class="nav-section">
+                <span>Categories</span>
+            </div>
+
+            <div style="padding:8px 16px;">
+                <div class="nav-item" data-label="promotions" onclick="changeView('promotions')">
+                    <span class="icon">🏷️</span><span>Promotions</span><span class="count"
+                        id="promotions-count">0</span>
+                </div>
+                <div class="nav-item" data-label="social" onclick="changeView('social')">
+                    <span class="icon">👥</span><span>Social</span><span class="count" id="social-count">0</span>
+                </div>
+                <div class="nav-item" data-label="updates" onclick="changeView('updates')">
+                    <span class="icon">🔔</span><span>Updates</span><span class="count" id="updates-count">0</span>
+                </div>
+            </div>
+
+            <div class="nav-item" onclick="openAISettings()">
+                <span class="icon">🤖</span><span>AI Settings</span>
+            </div>
+            <div id="static-nav">
+                <div class="nav-item">
+                    <span class="icon">👨🏻‍💻</span><span><a href="/dev" class="nav-link">Developer Info</a></span>
+                </div>
+            </div>
+            
+        </div>
+
+        <div class="content-area" id="contentArea">
+            <div class="tabs" id="tabsRow">
+                <div class="tab active" data-tab="primary">Primary</div>
+                <div class="tab" data-tab="promotions">Promotions</div>
+                <div class="tab" data-tab="social">Social</div>
+                <div class="tab" data-tab="updates">Updates</div>
+            </div>
+
+            <div id="emails-data" style="display:none;">
+                <%= JSON.stringify(emails) %>
+            </div>
+            <div id="emails-summary" style="display:none;">
+                <%= summary %>
+            </div>
+            <div id="templates-data" style="display:none;">
+                <%= JSON.stringify(templates) %>
+            </div>
+            <div id="category-counts" style="display:none;">
+                <%= JSON.stringify(categoryCounts) %>
+            </div>
+            <div id="ai-settings-data" style="display:none;">
+                <%= JSON.stringify(aiSettings) %>
+            </div>
+
+            <div class="email-list" id="email-list"></div>
+            <div class="pagination" id="pagination"></div>
+        </div>
+
+        <div class="detail-panel detail-hidden" id="detailPanel">
+            <div class="detail-header">
+                <div>
+                    <div id="detailSender" style="font-weight:700;"></div>
+                    <div id="detailSubject" style="color:#5f6368;font-size:13px;"></div>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <div id="detailTime" style="color:#5f6368;font-size:13px;"></div>
+                    <button class="icon-btn" title="Forward" onclick="openForwardModal()">↪️</button>
+                    <button class="icon-btn" onclick="closeDetail()">✕</button>
+                </div>
+            </div>
+
+            <div class="detail-body" id="detailBody"></div>
+            <div class="detail-replies" id="detailReplies"></div>
+
+            <div class="reply-box">
+                <!-- Smart Reply Suggestion -->
+                <div id="smartReplyContainer" style="display:none;" class="smart-reply-box">
+                    <div class="smart-reply-header">
+                        <div style="font-weight:600;color:#1e8e3e;">🤖 Smart Reply Suggestion</div>
+                        <button class="btn btn-secondary" onclick="hideSmartReply()"
+                            style="font-size:11px;padding:4px 8px;">✕</button>
+                    </div>
+                    <div class="smart-reply-text" id="smartReplyText"></div>
+                    <div style="margin-top:8px;text-align:right;">
+                        <button class="btn btn-primary" onclick="useSmartReply()" style="font-size:13px;">Use This
+                            Reply</button>
+                    </div>
+                </div>
+
+                <div style="display:flex;gap:12px;align-items:center;margin-bottom:8px;">
+                    <div style="font-weight:600;">Reply</div>
+                    <div id="replyTone" style="margin-left:8px;color:#5f6368;font-weight:700;font-size:13px;"></div>
+                </div>
+                <textarea id="replyText" placeholder="Write your reply..."></textarea>
+                <div class="reply-actions">
+                    <div>
+                        <button class="btn btn-secondary" onclick="showSmartReply()">🤖 Smart Reply</button>
+                    </div>
+                    <div style="display:flex;gap:8px;">
+                        <button class="btn btn-secondary" onclick="closeDetail()">Close</button>
+                        <button class="btn btn-primary" onclick="sendReply()">Send Reply</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Compose Drawer -->
+    <div class="compose-drawer" id="composeDrawer" aria-hidden="true">
+        <div class="compose-header">
+            <div style="font-weight:700;">New Message</div>
+            <div style="display:flex;gap:8px;align-items:center;">
+                <div id="composeTonePill" class="tone-pill">Neutral</div>
+                <button class="icon-btn" id="composeCloseBtn">✕</button>
+            </div>
+        </div>
+        <div class="compose-body">
+            <input id="composeTo" type="email" placeholder="To" />
+            <input id="composeSubject" type="text" placeholder="Subject" />
+            <textarea id="composeBody" placeholder="Write your email..."></textarea>
+        </div>
+        <div class="compose-footer">
+            <div style="display:flex;gap:8px;">
+                <button class="btn btn-secondary" id="saveDraftBtn">Save draft</button>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;">
+                <div style="font-size:13px;color:#5f6368;">Tone:</div>
+                <div id="composeToneLabel" style="font-weight:700;color:#5f6368;">Neutral</div>
+                <button class="btn btn-primary" id="sendComposeBtn">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forward Modal -->
+    <div id="forwardModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">↪️ Forward Email</h3>
+                <button class="close-btn" onclick="closeForwardModal()">&times;</button>
+            </div>
+            <div class="forward-info" id="forwardInfo"></div>
+            <div style="margin-bottom:16px;">
+                <label style="display:block;margin-bottom:8px;font-weight:600;">To:</label>
+                <input type="email" id="forwardTo" placeholder="recipient@example.com"
+                    style="width:100%;padding:10px;border:1px solid #dadce0;border-radius:6px;margin-bottom:12px;" />
+
+                <label style="display:block;margin-bottom:8px;font-weight:600;">Additional Message (optional):</label>
+                <textarea id="forwardMessage" placeholder="Add your message here..."
+                    style="width:100%;padding:10px;border:1px solid #dadce0;border-radius:6px;min-height:100px;"></textarea>
+            </div>
+            <div style="display:flex;gap:8px;justify-content:flex-end;">
+                <button class="btn btn-secondary" onclick="closeForwardModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="sendForward()">Forward</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Label Modal -->
+    <div id="aiLabelModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">🤖 Create AI Label</h3>
+                <button class="close-btn" onclick="closeAILabelModal()">&times;</button>
+            </div>
+            <div style="margin-bottom:16px;">
+                <label style="display:block;margin-bottom:8px;font-weight:600;">Category Name:</label>
+                <input type="text" id="aiCategoryName" placeholder="e.g., Work, Bills, Shopping"
+                    style="width:100%;padding:10px;border:1px solid #dadce0;border-radius:6px;margin-bottom:12px;" />
+
+                <label style="display:block;margin-bottom:8px;font-weight:600;">Keywords (comma-separated):</label>
+                <textarea id="aiKeywords" placeholder="e.g., meeting, deadline, project, report"
+                    style="width:100%;padding:10px;border:1px solid #dadce0;border-radius:6px;min-height:80px;"></textarea>
+
+                <div style="margin-top:8px;font-size:13px;color:#5f6368;">
+                    💡 Emails containing these keywords will be automatically categorized.
+                </div>
+            </div>
+            <div style="display:flex;gap:8px;justify-content:flex-end;">
+                <button class="btn btn-secondary" onclick="closeAILabelModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="createAILabel()">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Settings Modal -->
+    <div id="aiSettingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">AI Settings</h3>
+                <button class="close-btn" onclick="closeAISettings()">&times;</button>
+            </div>
+            <div style="margin-bottom:16px;">
+                <label style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+                    <input type="checkbox" id="emailSummarization" /> Email Summarization
+                </label>
+                <label style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+                    <input type="checkbox" id="aiAutoCategorization" /> AI Auto-Categorization
+                </label>
+                <label style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+                    <input type="checkbox" id="smartReplyGeneration" /> Smart Reply Generation
+                </label>
+            </div>
+            <div style="display:flex;justify-content:flex-end;">
+                <button class="btn btn-primary" onclick="saveAISettings()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const emailsContainer = document.getElementById('emails-data');
+        let emails = emailsContainer ? JSON.parse(emailsContainer.textContent) : [];
+
+        const templatesContainer = document.getElementById('templates-data');
+        let templates = templatesContainer ? JSON.parse(templatesContainer.textContent) : { rules: [] };
+
+        const countsContainer = document.getElementById('category-counts');
+        let categoryCounts = countsContainer ? JSON.parse(countsContainer.textContent) : {};
+
+        const aiSettingsContainer = document.getElementById('ai-settings-data');
+        let aiSettings = aiSettingsContainer ? JSON.parse(aiSettingsContainer.textContent) : {};
+
+        let labels = [];
+        let state = {
+            view: 'inbox',
+            page: 1,
+            pageSize: 10,
+            search: '',
+            selectedEmailId: null,
+            sidebarCollapsed: false
+        };
+
+        function $(id) { return document.getElementById(id); }
+
+        function formatPreview(email) {
+            let preview = email.preview || email.snippet || '';
+            if (preview.length > 100) {
+                preview = preview.substring(0, 100) + '...';
+            }
+            return preview;
+        }
+
+        function isHTML(str) {
+            return /<\/?[a-z][\s\S]*>/i.test(str);
+        }
+
+        const POS_WORDS = ['good', 'great', 'thanks', 'thank', 'congrat', 'congratulations', 'appreciate', 'awesome', 'love', 'happy', 'well done', 'success', 'pleased', 'best', 'excellent', 'wonderful', 'fantastic', 'amazing', 'perfect', 'brilliant', 'outstanding'];
+        const NEG_WORDS = ['not', 'unfortunately', 'sorry', 'problem', 'issue', 'delay', 'fail', 'unable', 'cancel', 'angry', 'hate', 'bad', 'concern', 'disappointed', 'terrible', 'awful', 'poor', 'worst', 'horrible', 'unacceptable'];
+
+        function detectTone(text) {
+            if (!text) return 'Neutral';
+            const t = text.toLowerCase();
+            let pos = 0, neg = 0;
+            POS_WORDS.forEach(w => { if (t.includes(w)) pos++; });
+            NEG_WORDS.forEach(w => { if (t.includes(w)) neg++; });
+            if (pos > neg && pos > 0) return 'Positive';
+            if (neg > pos && neg > 0) return 'Negative';
+            return 'Neutral';
+        }
+
+        function applyAISettingsVisibility() {
+            const summaryPanel = $('summary');
+            const aiLabelsSection = $('aiLabelsSection');
+            const addAILabelBtn = $('addAILabelBtn');
+
+            if (aiSettings.emailSummarization === false) {
+                if (summaryPanel) summaryPanel.style.display = 'none';
+            } else {
+                if (summaryPanel) summaryPanel.style.display = 'block';
+            }
+
+            if (aiSettings.aiAutoCategorization === false) {
+                if (aiLabelsSection) aiLabelsSection.style.display = 'none';
+                if (addAILabelBtn) addAILabelBtn.style.display = 'none';
+                $('ai-labels-list').style.display = 'none';
+            } else {
+                if (aiLabelsSection) aiLabelsSection.style.display = 'flex';
+                if (addAILabelBtn) addAILabelBtn.style.display = 'inline-block';
+                $('ai-labels-list').style.display = 'block';
+            }
+        }
+
+        function getFilteredEmails() {
+            const q = state.search.trim().toLowerCase();
+            let list = [...emails];
+
+            if (state.view === 'starred') {
+                list = list.filter(e => e.starred);
+            } else if (state.view === 'inbox') {
+                list = list.filter(e => !e.labels || !e.labels.includes('trash') && !e.labels.includes('draft') && !e.labels.includes('sent'));
+            } else if (state.view === 'sent') {
+                list = list.filter(e => e.labels && e.labels.includes('sent'));
+            } else if (state.view === 'drafts') {
+                list = list.filter(e => e.labels && e.labels.includes('draft'));
+            } else if (state.view === 'trash') {
+                list = list.filter(e => e.labels && e.labels.includes('trash'));
+            } else {
+                list = list.filter(e => e.labels && e.labels.includes(state.view));
+            }
+
+            if (q) {
+                list = list.filter(e => {
+                    const searchText = [
+                        e.sender || '',
+                        e.subject || '',
+                        e.preview || '',
+                        e.snippet || '',
+                        e.body || '',
+                        ...(e.labels || [])
+                    ].join(' ').toLowerCase();
+
+                    return searchText.includes(q);
+                });
+            }
+
+            return list;
+        }
+
+        function renderEmails() {
+            const listEl = $('email-list');
+            const all = getFilteredEmails();
+            const total = all.length;
+            const pageSize = state.pageSize;
+            const pageCount = Math.max(1, Math.ceil(total / pageSize));
+            if (state.page > pageCount) state.page = pageCount;
+            const start = (state.page - 1) * pageSize;
+            const pageItems = all.slice(start, start + pageSize);
+
+            updateCounts();
+
+            listEl.innerHTML = pageItems.map(email => {
+                const preview = formatPreview(email);
+                const newBadge = email.new_email ? '<span style="background:#34a853;color:white;padding:2px 6px;border-radius:4px;font-size:10px;margin-left:8px;font-weight:600;">NEW</span>' : '';
+
+                return `
+                    <div class="email-item ${email.unread ? 'unread' : ''}" data-id="${email.id}">
+                        <div class="email-left">
+                            <input type="checkbox" class="checkbox" data-id="${email.id}" onclick="event.stopPropagation()" />
+                            <span class="star ${email.starred ? 'active' : ''}" data-id="${email.id}" onclick="toggleStarEvent(event, '${email.id}')">★</span>
+                            <span class="email-sender">${escapeHtml(email.sender)}${newBadge}</span>
+                        </div>
+                        <div class="email-content">
+                            <span class="email-subject">${escapeHtml(email.subject)}</span>
+                            <span class="email-preview"> - ${escapeHtml(preview)}</span>
+                            ${renderEmailLabelsInline(email)}
+                        </div>
+                        <div class="email-time">${email.time}</div>
+                    </div>
+                `;
+            }).join('');
+
+            Array.from(document.querySelectorAll('.email-item')).forEach(el => {
+                el.addEventListener('click', () => openEmail(el.dataset.id));
+            });
+
+            renderPagination(total, pageCount);
+        }
+
+        function updateCounts() {
+            $('inbox-count').textContent = emails.filter(e => e.unread && (!e.labels || (!e.labels.includes('trash') && !e.labels.includes('draft') && !e.labels.includes('sent')))).length;
+            $('promotions-count').textContent = categoryCounts['promotions'] || 0;
+            $('social-count').textContent = categoryCounts['social'] || 0;
+            $('updates-count').textContent = categoryCounts['updates'] || 0;
+            $('draft-count').textContent = emails.filter(e => e.labels && e.labels.includes('draft')).length;
+
+            templates.rules.forEach(rule => {
+                const countEl = document.getElementById(`count-${rule.category.toLowerCase()}`);
+                if (countEl) {
+                    countEl.textContent = categoryCounts[rule.category.toLowerCase()] || 0;
+                }
+            });
+        }
+
+        function renderEmailLabelsInline(email) {
+            if (!email.labels || email.labels.length === 0) return '';
+
+            let displayLabels = email.labels.filter(l => !['inbox', 'sent', 'draft', 'trash', 'starred'].includes(l));
+
+            if (aiSettings.aiAutoCategorization === false) {
+                const aiCategories = templates.rules.map(r => r.category.toLowerCase());
+                displayLabels = displayLabels.filter(l => !aiCategories.includes(l));
+            }
+
+            if (displayLabels.length === 0) return '';
+
+            const pills = displayLabels.slice(0, 3).map(l => {
+                const color = (labels.find(x => x.name === l) || { color: null }).color;
+                const style = color ? `style="background:${color};color:#fff;padding:2px 8px;border-radius:999px;font-size:11px;margin-left:6px;"` : `style="background:#f1f3f4;color:#5f6368;padding:2px 8px;border-radius:999px;font-size:11px;margin-left:6px;"`;
+                return `<span ${style}>${escapeHtml(l)}</span>`;
+            });
+            return `<div style="margin-top:6px;">${pills.join('')}</div>`;
+        }
+
+        function renderAILabels() {
+            const list = $('ai-labels-list');
+            const tabsRow = $('tabsRow');
+
+            list.innerHTML = templates.rules.map((rule, idx) => {
+                const count = categoryCounts[rule.category.toLowerCase()] || 0;
+                return `
+                    <div class="nav-item" data-ai-label="${rule.category.toLowerCase()}" onclick="changeView('${rule.category.toLowerCase()}')">
+                        <span class="icon">🤖</span>
+                        <span>${escapeHtml(rule.category)}</span>
+                        <span class="count" id="count-${rule.category.toLowerCase()}">${count}</span>
+                        <button class="icon-btn" style="margin-left:auto;font-size:12px;" onclick="deleteAILabel(event, '${escapeHtml(rule.category)}')">🗑️</button>
+                    </div>
+                `;
+            }).join('');
+
+            // Remove old AI tabs first
+            const existingAITabs = Array.from(tabsRow.querySelectorAll('.tab[data-ai-tab="true"]'));
+            existingAITabs.forEach(tab => tab.remove());
+
+            // Add new AI tabs
+            templates.rules.forEach(rule => {
+                const tabName = rule.category.toLowerCase();
+                const tab = document.createElement('div');
+                tab.className = 'tab';
+                tab.dataset.tab = tabName;
+                tab.dataset.aiTab = 'true';
+                tab.textContent = rule.category;
+                tab.addEventListener('click', () => changeView(tabName));
+                tabsRow.appendChild(tab);
+            });
+        }
+
+        function renderPagination(total, pageCount) {
+            const p = $('pagination');
+            if (pageCount <= 1) { p.innerHTML = ''; return; }
+
+            let html = `<span style="margin-right:12px;color:#5f6368;">Page ${state.page} of ${pageCount} (${total} emails)</span>`;
+
+            if (state.page > 1) {
+                html += `<button class="page-btn" data-page="${state.page - 1}">← Previous</button>`;
+            }
+
+            const startPage = Math.max(1, state.page - 2);
+            const endPage = Math.min(pageCount, state.page + 2);
+
+            for (let i = startPage; i <= endPage; i++) {
+                html += `<button class="page-btn ${i === state.page ? 'active' : ''}" data-page="${i}">${i}</button>`;
+            }
+
+            if (state.page < pageCount) {
+                html += `<button class="page-btn" data-page="${state.page + 1}">Next →</button>`;
+            }
+
+            p.innerHTML = html;
+            Array.from(p.querySelectorAll('.page-btn')).forEach(btn => {
+                btn.addEventListener('click', () => {
+                    state.page = Number(btn.dataset.page);
+                    renderEmails();
+                    window.scrollTo(0, 0);
+                });
+            });
+        }
+
+        function openEmail(id) {
+            const email = emails.find(e => e.id === id);
+            if (!email) return;
+            state.selectedEmailId = id;
+            email.unread = false;
+            email.new_email = false;
+            renderEmails();
+
+            $('detailSender').textContent = email.sender;
+            $('detailSubject').textContent = email.subject;
+            $('detailTime').textContent = email.time;
+
+            const bodyContainer = $('detailBody');
+            bodyContainer.innerHTML = '';
+
+            if (email.aiSummary && aiSettings.emailSummarization !== false) {
+                const summaryHTML = `
+                    <div style="background:#e8f5e9;border-left:4px solid #34a853;padding:12px;margin-bottom:16px;border-radius:8px;">
+                        <div style="font-weight:600;color:#1e8e3e;margin-bottom:6px;">🤖 AI Summary</div>
+                        <div style="font-size:14px;color:#202124;line-height:1.6;">${escapeHtml(email.aiSummary.summary)}</div>
+                        <div style="margin-top:8px;font-size:12px;color:#5f6368;">
+                            <span style="font-weight:600;">Tone:</span> 
+                            <span class="tone ${email.aiSummary.tone.toLowerCase()}">${email.aiSummary.tone}</span>
+                            <span style="margin-left:12px;font-weight:600;">Confidence:</span> ${Math.round(email.aiSummary.confidence * 100)}%
+                        </div>
+                    </div>
+                `;
+                bodyContainer.innerHTML = summaryHTML;
+            }
+
+            if (email.body && isHTML(email.body)) {
+                try {
+                    const iframe = document.createElement('iframe');
+                    iframe.className = 'email-canvas';
+                    iframe.setAttribute('sandbox', 'allow-same-origin allow-popups');
+                    iframe.style.width = '100%';
+                    iframe.style.border = 'none';
+                    iframe.style.height = '70vh';
+                    bodyContainer.appendChild(iframe);
+
+                    const doc = iframe.contentDocument || iframe.contentWindow.document;
+                    doc.open();
+                    doc.write(email.body);
+                    doc.close();
+                } catch (err) {
+                    console.error('Error rendering HTML:', err);
+                    const pre = document.createElement('div');
+                    pre.className = 'plain-body';
+                    pre.innerText = email.snippet || email.body || '(No content)';
+                    bodyContainer.appendChild(pre);
+                }
+            } else {
+                const pre = document.createElement('div');
+                pre.className = 'plain-body';
+                pre.innerText = email.snippet || email.body || '(No content)';
+                bodyContainer.appendChild(pre);
+            }
+
+            renderRepliesForEmail(email);
+            $('replyText').value = '';
+            $('replyTone').textContent = '';
+
+            // Show smart reply if available and enabled
+            if (email.smartReply && aiSettings.smartReplyGeneration !== false) {
+                $('smartReplyText').textContent = email.smartReply;
+            } else {
+                hideSmartReply();
+            }
+
+            $('detailPanel').classList.remove('detail-hidden');
+            $('detailPanel').scrollTop = 0;
+        }
+
+        function closeDetail() {
+            state.selectedEmailId = null;
+            $('detailPanel').classList.add('detail-hidden');
+            hideSmartReply();
+        }
+
+        function renderRepliesForEmail(email) {
+            const el = $('detailReplies');
+            if (!email.replies) email.replies = [];
+            el.innerHTML = email.replies.map(r => `
+                <div class="reply">
+                    <div class="reply-meta">${escapeHtml(r.from)} • ${escapeHtml(r.time)} • Tone: ${escapeHtml(r.tone)}</div>
+                    <div>${escapeHtml(r.text)}</div>
+                </div>
+            `).join('');
+        }
+
+        async function sendReply() {
+            const text = $('replyText').value.trim();
+            if (!text) {
+                alert('Reply cannot be empty');
+                return;
+            }
+
+            const email = emails.find(e => e.id === state.selectedEmailId);
+            if (!email) {
+                alert('No email selected');
+                return;
+            }
+
+            const tone = detectTone(text);
+
+            // Send via API
+            try {
+                const response = await fetch('/api/send-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        to: email.sender,
+                        subject: `Re: ${email.subject}`,
+                        body: text,
+                        threadId: email.threadId || email.id
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Save reply locally
+                    const replyObj = {
+                        from: 'You',
+                        time: new Date().toLocaleString(),
+                        text,
+                        tone
+                    };
+
+                    email.replies = email.replies || [];
+                    email.replies.push(replyObj);
+
+                    // Also save to database
+                    await fetch('/api/save-reply', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            emailId: email.id,
+                            replyText: text,
+                            tone: tone
+                        })
+                    });
+
+                    renderRepliesForEmail(email);
+                    $('replyText').value = '';
+                    $('replyTone').textContent = '';
+                    hideSmartReply();
+                    alert('Reply sent successfully!');
+                } else {
+                    alert('Failed to send reply: ' + (data.error || 'Unknown error'));
+                }
+            } catch (err) {
+                console.error('Error sending reply:', err);
+                alert('Error sending reply. Please try again.');
+            }
+        }
+
+        function showSmartReply() {
+            const email = emails.find(e => e.id === state.selectedEmailId);
+            if (email && email.smartReply && aiSettings.smartReplyGeneration !== false) {
+                $('smartReplyText').textContent = email.smartReply;
+                $('smartReplyContainer').style.display = 'block';
+            } else {
+                alert('Smart reply not available for this email');
+            }
+        }
+
+        function hideSmartReply() {
+            $('smartReplyContainer').style.display = 'none';
+        }
+
+        function useSmartReply() {
+            const smartReplyText = $('smartReplyText').textContent;
+            $('replyText').value = smartReplyText;
+            hideSmartReply();
+            $('replyText').focus();
+        }
+
+        function openCompose() {
+            $('composeDrawer').classList.add('open');
+            $('composeDrawer').setAttribute('aria-hidden', 'false');
+            updateComposeTone();
+        }
+
+        function closeCompose() {
+            $('composeDrawer').classList.remove('open');
+            $('composeDrawer').setAttribute('aria-hidden', 'true');
+        }
+
+        function saveDraft() {
+            const to = $('composeTo').value.trim();
+            const subj = $('composeSubject').value.trim();
+            const body = $('composeBody').value.trim();
+            const id = 'draft_' + Date.now();
+            emails.unshift({
+                id,
+                sender: to || 'Draft',
+                subject: subj || '(no subject)',
+                preview: body.slice(0, 100),
+                time: 'Draft',
+                unread: false,
+                starred: false,
+                labels: ['draft'],
+                body,
+                snippet: body.slice(0, 100),
+                replies: [],
+                new_email: false
+            });
+            closeCompose();
+            renderEmails();
+            alert('Saved to Drafts');
+        }
+
+        async function sendCompose() {
+            const to = $('composeTo').value.trim();
+            const subj = $('composeSubject').value.trim();
+            const body = $('composeBody').value.trim();
+
+            if (!to || !subj || !body) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/send-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        to: to,
+                        subject: subj,
+                        body: body
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    closeCompose();
+                    resetComposeFields();
+                    alert('Email sent successfully!');
+
+                    // Reload to show sent email
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    alert('Failed to send email: ' + (data.error || 'Unknown error'));
+                }
+            } catch (err) {
+                console.error('Error sending email:', err);
+                alert('Error sending email. Please try again.');
+            }
+        }
+
+        function resetComposeFields() {
+            $('composeTo').value = '';
+            $('composeSubject').value = '';
+            $('composeBody').value = '';
+            updateComposeTone();
+        }
+
+        function updateComposeTone() {
+            const text = ($('composeSubject').value || '') + ' ' + ($('composeBody').value || '');
+            const tone = detectTone(text);
+            $('composeToneLabel').textContent = tone;
+            $('composeTonePill').textContent = tone;
+            if (tone === 'Positive') $('composeTonePill').style.background = '#dff6e3';
+            else if (tone === 'Negative') $('composeTonePill').style.background = '#ffe5e5';
+            else $('composeTonePill').style.background = '#f1f3f4';
+        }
+
+        function openForwardModal() {
+            const email = emails.find(e => e.id === state.selectedEmailId);
+            if (!email) {
+                alert('No email selected');
+                return;
+            }
+
+            const forwardInfo = `
+                <strong>From:</strong> ${escapeHtml(email.sender)}<br>
+                <strong>Subject:</strong> ${escapeHtml(email.subject)}<br>
+                <strong>Date:</strong> ${escapeHtml(email.time)}
+            `;
+
+            $('forwardInfo').innerHTML = forwardInfo;
+            $('forwardTo').value = '';
+            $('forwardMessage').value = '';
+            $('forwardModal').classList.add('show');
+        }
+
+        function closeForwardModal() {
+            $('forwardModal').classList.remove('show');
+        }
+
+        async function sendForward() {
+            const to = $('forwardTo').value.trim();
+            const additionalMessage = $('forwardMessage').value.trim();
+
+            if (!to) {
+                alert('Please enter recipient email');
+                return;
+            }
+
+            const email = emails.find(e => e.id === state.selectedEmailId);
+            if (!email) {
+                alert('No email selected');
+                return;
+            }
+
+            const forwardBody = `
+${additionalMessage ? additionalMessage + '\n\n' : ''}---------- Forwarded message ---------
+From: ${email.sender}
+Date: ${email.time}
+Subject: ${email.subject}
+
+${email.body || email.snippet}
+            `;
+
+            try {
+                const response = await fetch('/api/send-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        to: to,
+                        subject: `Fwd: ${email.subject}`,
+                        body: forwardBody
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    closeForwardModal();
+                    alert('Email forwarded successfully!');
+                } else {
+                    alert('Failed to forward email: ' + (data.error || 'Unknown error'));
+                }
+            } catch (err) {
+                console.error('Error forwarding email:', err);
+                alert('Error forwarding email. Please try again.');
+            }
+        }
+
+        function toggleSidebar() {
+            const bar = $('sidebar');
+            bar.classList.toggle('collapsed');
+            state.sidebarCollapsed = bar.classList.contains('collapsed');
+        }
+
+        function openAILabelModal() {
+            $('aiLabelModal').classList.add('show');
+        }
+
+        function closeAILabelModal() {
+            $('aiLabelModal').classList.remove('show');
+            $('aiCategoryName').value = '';
+            $('aiKeywords').value = '';
+        }
+
+        async function createAILabel() {
+            const category = $('aiCategoryName').value.trim();
+            const keywordsText = $('aiKeywords').value.trim();
+
+            if (!category || !keywordsText) {
+                alert('Please enter both category name and keywords');
+                return;
+            }
+
+            const keywords = keywordsText.split(',').map(k => k.trim()).filter(k => k);
+
+            try {
+                const response = await fetch('/api/add-template', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ category, keywords })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert('AI Label created successfully! All emails have been recategorized. Refreshing...');
+                    window.location.reload();
+                } else {
+                    alert('Error creating AI label');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                alert('Error creating AI label');
+            }
+        }
+
+        async function deleteAILabel(event, category) {
+            event.stopPropagation();
+
+            if (!confirm(`Are you sure you want to delete the "${category}" AI label? This will remove it from all emails and the top navigation.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/delete-template', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ category })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert('AI Label deleted successfully! Refreshing...');
+                    window.location.reload();
+                } else {
+                    alert('Error deleting AI label');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                alert('Error deleting AI label');
+            }
+        }
+
+        function openAISettings() {
+            $('emailSummarization').checked = aiSettings.emailSummarization !== false;
+            $('aiAutoCategorization').checked = aiSettings.aiAutoCategorization !== false;
+            $('smartReplyGeneration').checked = aiSettings.smartReplyGeneration !== false;
+
+            $('aiSettingsModal').classList.add('show');
+        }
+
+        function closeAISettings() {
+            $('aiSettingsModal').classList.remove('show');
+        }
+
+        async function saveAISettings() {
+            const settings = {
+                emailSummarization: $('emailSummarization').checked,
+                aiAutoCategorization: $('aiAutoCategorization').checked,
+                smartReplyGeneration: $('smartReplyGeneration').checked
+            };
+
+            try {
+                const response = await fetch('/api/save-ai-settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(settings)
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert('AI Settings saved successfully! Refreshing...');
+                    aiSettings = settings;
+                    closeAISettings();
+                    window.location.reload();
+                } else {
+                    alert('Error saving AI settings');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                alert('Error saving AI settings');
+            }
+        }
+
+        function toggleProfileMenu() {
+            alert('Profile menu would open here!');
+        }
+
+        function setActiveNavForView(view) {
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            const found = Array.from(document.querySelectorAll('.nav-item')).find(n => {
+                return n.dataset.view === view || n.dataset.label === view || n.dataset.customLabel === view || n.dataset.aiLabel === view;
+            });
+            if (found) found.classList.add('active');
+
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            const tabEl = Array.from(document.querySelectorAll('.tab')).find(t => t.dataset.tab === view || (view === 'inbox' && t.dataset.tab === 'primary'));
+            if (tabEl) tabEl.classList.add('active');
+        }
+
+        function changeView(view) {
+            closeDetail();
+            state.view = view;
+            state.page = 1;
+            setActiveNavForView(view);
+            renderEmails();
+        }
+
+        function escapeHtml(unsafe) {
+            if (unsafe === undefined || unsafe === null) return '';
+            return unsafe.toString().replace(/[&<"'>]/g, function (m) {
+                return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[m];
+            });
+        }
+
+        function toggleStarEvent(ev, id) {
+            ev.stopPropagation();
+            const e = emails.find(x => x.id === id);
+            if (e) { e.starred = !e.starred; renderEmails(); }
+        }
+
+        function loadSummaryPanel() {
+            const hidden = document.getElementById("emails-summary");
+            if (!hidden) return;
+
+            let data = null;
+            try {
+                data = JSON.parse(hidden.textContent || hidden.innerText);
+            } catch (err) {
+                console.warn("Invalid summary JSON:", err);
+                return;
+            }
+
+            if (!data || !data.list || !data.bulk) return;
+
+            const panel = document.getElementById("summary");
+
+            if (aiSettings.emailSummarization !== false) {
+                panel.style.display = "block";
+            } else {
+                panel.style.display = "none";
+                return;
+            }
+
+            const listContainer = document.getElementById("summary-list");
+            const bulkContainer = document.getElementById("summary-bulk");
+            if (!listContainer || !bulkContainer) return;
+
+            listContainer.innerHTML = data.list.map(e => `
+                <div class="summary-item">
+                    <div class="summary-line">
+                        <span class="sender">${escapeHtml(e.sender)}</span>
+                        <span class="time">${escapeHtml(e.time)}</span>
+                        <span class="tone ${e.tone.toLowerCase()}">${escapeHtml(e.tone)}</span>
+                    </div>
+                    <div class="summary-text">${escapeHtml(e.summary)}</div>
+                </div>
+            `).join("");
+
+            bulkContainer.textContent = data.bulk;
+        }
+
+        function showTab(tab) {
+            const list = document.getElementById("summary-list");
+            const bulk = document.getElementById("summary-bulk");
+            const btnList = document.getElementById("tab-list");
+            const btnBulk = document.getElementById("tab-bulk");
+
+            if (!list || !bulk || !btnList || !btnBulk) return;
+
+            if (tab === "list") {
+                list.style.display = "block";
+                bulk.style.display = "none";
+                btnList.classList.add("active");
+                btnBulk.classList.remove("active");
+            } else {
+                list.style.display = "none";
+                bulk.style.display = "block";
+                btnList.classList.remove("active");
+                btnBulk.classList.add("active");
+            }
+        }
+
+        function toggleSummarySize() {
+            const panel = document.getElementById("summary");
+            const btn = document.getElementById("toggleSizeBtn");
+
+            if (!panel) return;
+
+            if (panel.classList.contains("minimized")) {
+                panel.classList.remove("minimized");
+                btn.textContent = "➖";
+            } else {
+                panel.classList.add("minimized");
+                btn.textContent = "🔼";
+            }
+        }
+
+        (function init() {
+            applyAISettingsVisibility();
+            renderAILabels();
+            renderEmails();
+
+            $('menuToggle').addEventListener('click', toggleSidebar);
+            $('composeOpenBtn').addEventListener('click', openCompose);
+            $('composeCloseBtn').addEventListener('click', closeCompose);
+            $('sendComposeBtn').addEventListener('click', sendCompose);
+            $('saveDraftBtn').addEventListener('click', saveDraft);
+
+            $('searchInput').addEventListener('input', function () {
+                state.search = this.value;
+                state.page = 1;
+                renderEmails();
+            });
+
+            ['composeSubject', 'composeBody'].forEach(id => {
+                $(id).addEventListener('input', updateComposeTone);
+            });
+
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tb = tab.dataset.tab;
+                    changeView(tb === 'primary' ? 'inbox' : tb);
+                });
+            });
+
+            document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', (ev) => {
+                if (ev.target === m) m.classList.remove('show');
+            }));
+
+            document.addEventListener('keydown', (ev) => {
+                if (ev.key === 'c' && !ev.metaKey && !ev.ctrlKey && ev.target.tagName !== 'INPUT' && ev.target.tagName !== 'TEXTAREA') {
+                    openCompose();
+                }
+            });
+
+            document.addEventListener('keydown', (ev) => {
+                if (ev.key === 'Escape') {
+                    closeCompose();
+                    closeDetail();
+                    closeAILabelModal();
+                    closeAISettings();
+                    closeForwardModal();
+                }
+            });
+
+            // Auto-refresh every 60 seconds
+            setInterval(() => {
+                console.log('🔄 Checking for new emails...');
+                window.location.reload();
+            }, 60000);
+        })();
+
+        document.addEventListener("readystatechange", function () {
+            if (document.readyState === "complete") {
+                console.log("Page fully loaded – loading summary panel...");
+                loadSummaryPanel();
+            }
+        });
+    </script>
+</body>
+
+</html>

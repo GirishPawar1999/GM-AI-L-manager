@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GM-AI-L Manager - Setup</title>
+    <link rel="stylesheet" href="/Home.css">
+</head>
+
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <h2>Initializing GM-AI-L Manager</h2>
+            <p>Setting up your workspace...</p>
+        </div>
+    </div>
+
+    <div class="container" id="mainContent">
+        <header>
+            <div class="logo">
+                <svg width="40" height="40" viewBox="0 0 40 40">
+                    <rect width="40" height="40" rx="8" fill="#4285F4" />
+                    <path d="M10 15 L20 22 L30 15 M10 15 L10 28 L30 28 L30 15" stroke="white" stroke-width="2"
+                        fill="none" />
+                </svg>
+                <h1>GM-AI-L Manager</h1>
+            </div>
+            <nav>
+                <a href="/" class="nav-link">Dashboard</a>
+                <a href="/dev" class="nav-link">Developer</a>
+            </nav>
+        </header>
+
+        <main>
+            <section class="hero">
+                <h2>Welcome to GM-AI-L Manager</h2>
+                <p>Your intelligent email management solution powered by AI</p>
+            </section>
+
+            <section class="setup-section">
+                <div class="card">
+                    <h3>📋 Setup Instructions</h3>
+                    <div class="steps">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h4>Enable Gmail API</h4>
+                                <p>Go to <a href="https://console.cloud.google.com/" target="_blank">Google Cloud
+                                        Console</a></p>
+                                <ul>
+                                    <li>Create a new project or select existing</li>
+                                    <li>Navigate to "APIs & Services" → "Library"</li>
+                                    <li>Search for "Gmail API" and enable it</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h4>Create OAuth 2.0 Credentials</h4>
+                                <p>In Google Cloud Console:</p>
+                                <ul>
+                                    <li>Go to "APIs & Services" → "Credentials"</li>
+                                    <li>Click "Create Credentials" → "OAuth client ID"</li>
+                                    <li>Choose "Web application"</li>
+                                    <li>Add redirect URI: <code>http://localhost</code></li>
+                                    <li>Download the credentials JSON file</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h4>Configure Credentials</h4>
+                                <p>Paste your credentials below or upload the JSON file:</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔐 Credentials Configuration</h3>
+                    <form id="credentialsForm">
+                        <div class="form-group">
+                            <label for="clientId">Client ID</label>
+                            <input type="text" id="clientId" placeholder="Your Client ID" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="clientSecret">Client Secret</label>
+                            <input type="text" id="clientSecret" placeholder="Your Client Secret" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="projectId">Project ID</label>
+                            <input type="text" id="projectId" placeholder="Your Project ID" required>
+                        </div>
+
+                        <div class="divider">OR</div>
+
+                        <div class="form-group">
+                            <label for="jsonUpload">Upload credentials.json</label>
+                            <input type="file" id="jsonUpload" accept=".json">
+                        </div>
+
+                        <button type="submit" class="btn-primary">Save Credentials</button>
+                    </form>
+
+                    <div id="credentialsStatus" class="status-message"></div>
+                </div>
+
+                <div class="card">
+                    <h3>⚙️ Initial Settings</h3>
+                    <form id="settingsForm">
+                        <div class="settings-grid">
+                            <div class="setting-item">
+                                <label class="switch">
+                                    <input type="checkbox" id="emailSummarization" checked>
+                                    <span class="slider"></span>
+                                </label>
+                                <div class="setting-info">
+                                    <h4>Email Summarization</h4>
+                                    <p>AI-powered email summaries</p>
+                                </div>
+                            </div>
+
+                            <div class="setting-item">
+                                <label class="switch">
+                                    <input type="checkbox" id="aiAutoCategorization" checked>
+                                    <span class="slider"></span>
+                                </label>
+                                <div class="setting-info">
+                                    <h4>Auto Categorization</h4>
+                                    <p>Automatically categorize emails</p>
+                                </div>
+                            </div>
+
+                            <div class="setting-item">
+                                <label class="switch">
+                                    <input type="checkbox" id="smartReplyGeneration" checked>
+                                    <span class="slider"></span>
+                                </label>
+                                <div class="setting-info">
+                                    <h4>Smart Reply Generation</h4>
+                                    <p>AI-generated reply suggestions</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-primary">Save Settings</button>
+                    </form>
+
+                    <div id="settingsStatus" class="status-message"></div>
+                </div>
+
+                <div class="card demo-section">
+                    <h3>🎬 Demo & Features</h3>
+                    <div class="features-grid">
+                        <div class="feature">
+                            <div class="feature-icon">🤖</div>
+                            <h4>AI Summarization</h4>
+                            <p>Get instant summaries of your emails</p>
+                        </div>
+                        <div class="feature">
+                            <div class="feature-icon">📊</div>
+                            <h4>Smart Categories</h4>
+                            <p>Automatic email categorization</p>
+                        </div>
+                        <div class="feature">
+                            <div class="feature-icon">💬</div>
+                            <h4>Quick Replies</h4>
+                            <p>AI-generated response suggestions</p>
+                        </div>
+                        <div class="feature">
+                            <div class="feature-icon">🔍</div>
+                            <h4>Smart Search</h4>
+                            <p>Find emails faster with AI</p>
+                        </div>
+                    </div>
+
+                    <div class="demo-actions">
+                        <button class="btn-secondary" onclick="window.location.href='/'">Go to Dashboard</button>
+                        <button class="btn-secondary" onclick="window.location.href='/dev'">View Documentation</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 GM-AI-L Manager. All rights reserved. Made with ❤️ by Girish Pawar</p>
+        </footer>
+    </div>
+
+    <script>
+        // Loading animation
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loadingOverlay').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('loadingOverlay').style.display = 'none';
+                    document.getElementById('mainContent').style.opacity = '1';
+                }, 500);
+            }, 2000);
+        });
+
+        // File upload handler
+        document.getElementById('jsonUpload').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const json = JSON.parse(event.target.result);
+                        const creds = json.web || json.installed;
+                        if (creds) {
+                            document.getElementById('clientId').value = creds.client_id || '';
+                            document.getElementById('clientSecret').value = creds.client_secret || '';
+                            document.getElementById('projectId').value = creds.project_id || '';
+                        }
+                    } catch (err) {
+                        alert('Invalid JSON file');
+                    }
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        // Credentials form handler
+        document.getElementById('credentialsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const statusDiv = document.getElementById('credentialsStatus');
+
+            const credentials = {
+                web: {
+                    client_id: document.getElementById('clientId').value,
+                    client_secret: document.getElementById('clientSecret').value,
+                    project_id: document.getElementById('projectId').value,
+                    auth_uri: "https://accounts.google.com/o/oauth2/auth",
+                    token_uri: "https://oauth2.googleapis.com/token",
+                    auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
+                    redirect_uris: ["http://localhost"]
+                }
+            };
+
+            try {
+                const response = await fetch('/api/save-credentials', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(credentials)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    statusDiv.innerHTML = '<div class="success">✅ Credentials saved successfully!</div>';
+                } else {
+                    statusDiv.innerHTML = '<div class="error">❌ Failed to save credentials</div>';
+                }
+            } catch (err) {
+                statusDiv.innerHTML = '<div class="error">❌ Error: ' + err.message + '</div>';
+            }
+        });
+
+        // Settings form handler
+        document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const statusDiv = document.getElementById('settingsStatus');
+
+            const settings = {
+                emailSummarization: document.getElementById('emailSummarization').checked,
+                aiAutoCategorization: document.getElementById('aiAutoCategorization').checked,
+                smartReplyGeneration: document.getElementById('smartReplyGeneration').checked
+            };
+
+            try {
+                const response = await fetch('/api/save-ai-settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(settings)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    statusDiv.innerHTML = '<div class="success">✅ Settings saved successfully!</div>';
+                } else {
+                    statusDiv.innerHTML = '<div class="error">❌ Failed to save settings</div>';
+                }
+            } catch (err) {
+                statusDiv.innerHTML = '<div class="error">❌ Error: ' + err.message + '</div>';
+            }
+        });
+    </script>
+</body>
+
+</html>
