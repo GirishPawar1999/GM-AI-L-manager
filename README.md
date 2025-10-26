@@ -496,13 +496,7 @@ python dataset.py
 
 ## 🤝 Contributing
 
-Contributions are welcome! Here's how you can help:
-
-1. 🍴 Fork the repository
-2. 🌿 Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. 💾 Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. 📤 Push to the branch (`git push origin feature/AmazingFeature`)
-5. 🔃 Open a Pull Request
+Please do ask for permitions before utilization or modification of code. This code solely belongs to Girish Pawar
 
 ### **Development Guidelines**
 
@@ -519,21 +513,6 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ---
 
-## 👨‍💻 Developer
-
-<div align="center">
-
-### **Girish Pawar**
-
-*Full Stack Developer & AI Enthusiast*
-
-[![Portfolio](https://img.shields.io/badge/Portfolio-Visit-4285F4?style=for-the-badge&logo=google-chrome&logoColor=white)](https://girishpawar1999.github.io/girish.pawar/aboutme.html)
-[![GitHub](https://img.shields.io/badge/GitHub-Follow-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/girishpawar1999)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/girish-pawar)
-
-</div>
-
----
 
 ## 🙏 Acknowledgments
 
