@@ -1,0 +1,78 @@
+{
+  "name": "gmail-ai-manager",
+  "version": "1.0.0",
+  "description": "AI-powered Gmail management desktop and web application",
+  "main": "main.js",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "start": "electron .",
+    "server": "node index.js",
+    "dev:app": "NODE_ENV=development electron .",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "build": {
+    "appId": "com.girishpawar.gmail-ai-manager",
+    "productName": "Gmail AI Manager",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!**/*.md",
+      "!dist",
+      "!node_modules/.cache"
+    ],
+    "win": {
+      "target": ["nsis"],
+      "icon": "assets/icon.ico"
+    },
+    "mac": {
+      "target": ["dmg"],
+      "icon": "assets/icon.icns",
+      "category": "public.app-category.productivity"
+    },
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "icon": "assets/icon.png",
+      "category": "Office"
+    }
+  },
+  "keywords": [
+    "gmail",
+    "imap",
+    "email",
+    "ai",
+    "nodejs",
+    "express",
+    "googleapis",
+    "productivity",
+    "electron"
+  ],
+  "author": "Girish Pawar",
+  "license": "MIT",
+  "dependencies": {
+    "@google-cloud/local-auth": "^2.1.0",
+    "@microsoft/microsoft-graph-client": "^3.0.7",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "googleapis": "^128.0.0",
+    "imap": "^0.8.19",
+    "isomorphic-fetch": "^3.0.0",
+    "mailparser": "^3.7.4",
+    "node-imap": "^0.9.6",
+    "open": "^10.2.0",
+    "readline": "^1.3.0",
+    "readline-sync": "^1.4.10",
+    "simple-oauth2": "^5.1.0",
+    "ews-javascript-api": "^0.15.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7",
+    "electron": "^27.0.0",
+    "electron-builder": "^24.6.4"
+  }
+}

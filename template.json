@@ -1,0 +1,45 @@
+{
+  "rules": [
+    {
+      "category": "Work",
+      "keywords": [
+        "meeting",
+        "project",
+        "deadline"
+      ]
+    },
+    {
+      "category": "Promotions",
+      "keywords": [
+        "offer",
+        "sale",
+        "discount",
+        "deal"
+      ]
+    },
+    {
+      "category": "Social",
+      "keywords": [
+        "invite",
+        "friend",
+        "social",
+        "event"
+      ]
+    },
+    {
+      "category": "Updates",
+      "keywords": [
+        "update",
+        "policy",
+        "terms",
+        "newsletter"
+      ]
+    },
+    {
+      "category": "Shopping",
+      "keywords": [
+        "Uber"
+      ]
+    }
+  ]
+}

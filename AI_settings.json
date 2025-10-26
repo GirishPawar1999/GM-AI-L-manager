@@ -1,0 +1,5 @@
+{
+  "emailSummarization": true,
+  "aiAutoCategorization": true,
+  "smartReplyGeneration": true
+}
